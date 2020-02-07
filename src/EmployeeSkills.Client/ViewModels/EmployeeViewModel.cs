@@ -17,7 +17,7 @@ namespace EmployeeSkills.Client.ViewModels
             Skills = new ObservableCollection<SkillViewModel>();
         }
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string FullName { get; set; }
         public ObservableCollection<SkillViewModel> Skills { get; set; }
 

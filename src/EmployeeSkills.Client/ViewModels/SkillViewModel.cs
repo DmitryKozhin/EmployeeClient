@@ -10,7 +10,7 @@ namespace EmployeeSkills.Client.ViewModels
         private byte _level;
         private string _name;
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string Name
         {
             get => _name;
