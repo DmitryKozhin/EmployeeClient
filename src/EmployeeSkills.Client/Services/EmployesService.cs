@@ -32,7 +32,7 @@ namespace EmployeeSkills.Client.Services
             var request = new RestRequest(Method.GET);
             var employees = await _restClient.ExecuteAsync<List<Employee>>(request);
             if (!employees.IsSuccessful)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(employees.ErrorMessage);
 
             return CreateFromModel(employees.Data);
         }
@@ -49,7 +49,7 @@ namespace EmployeeSkills.Client.Services
                 request.AddJsonBody(employeeForCreate);
                 var result = await _restClient.ExecuteAsync<Employee>(request);
                 if (!result.IsSuccessful)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(result.ErrorMessage);
             }
 
             foreach (var employeeForUpdate in forUpdate)
@@ -58,7 +58,7 @@ namespace EmployeeSkills.Client.Services
                 request.AddJsonBody(employeeForUpdate);
                 var result = await _restClient.ExecuteAsync<Employee>(request);
                 if (!result.IsSuccessful)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException(result.ErrorMessage);
             }
         }
 

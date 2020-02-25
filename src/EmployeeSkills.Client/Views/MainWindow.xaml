@@ -31,7 +31,7 @@
         <ListBox.ItemTemplate>
           <DataTemplate>
             <Grid ColumnDefinitions="80*, 10*, 10*">
-              <TextBox Margin="10 0 0 0" IsEnabled="{Binding IsEdit}" Grid.Column="0" Text="{Binding FullName}" />
+              <TextBox Margin="10 0 0 0" IsEnabled="{Binding IsEdit}" Grid.Column="0" Text="{Binding TempName}" />
               <Button Margin="5 0 0 0" 
                       MaxWidth="30" MaxHeight="30" 
                       MinWidth="30" MinHeight="30" 

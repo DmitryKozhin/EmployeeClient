@@ -95,9 +95,12 @@ namespace EmployeeSkills.Client.ViewModels
 
         private void ExecuteEditEmployee(EmployeeViewModel employeeForEdit)
         {
+            if (employeeForEdit.IsEdit)
+                employeeForEdit.ApplyChanges();
+
             employeeForEdit.IsEdit = !employeeForEdit.IsEdit;
             foreach (var employee in Employees.Where(employee => employee != employeeForEdit))
-                employee.IsEdit = false;
+                employee.DiscardChanges();
         }
 
         private async void ExecuteSave()

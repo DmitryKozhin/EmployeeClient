@@ -18,6 +18,7 @@ namespace EmployeeSkills.Client.ViewModels
         private string _fullName;
         private bool _isEdit;
         private string _editButtonImagePath;
+        private string _tempName;
 
         public EmployeeViewModel(long id = default, string fullName = "", ObservableCollection<SkillViewModel> skills = null)
         {
@@ -52,6 +53,12 @@ namespace EmployeeSkills.Client.ViewModels
                 this.RaiseAndSetIfChanged(ref _fullName, value);
                 EditType = EditType.Update;
             }
+        }
+
+        public string TempName
+        {
+            get => string.IsNullOrEmpty(_tempName) ? FullName : _tempName;
+            set => this.RaiseAndSetIfChanged(ref _tempName, value);
         }
 
         public long Id { get; set; }
@@ -91,5 +98,14 @@ namespace EmployeeSkills.Client.ViewModels
             skill.PropertyChanged -= SkillViewModelOnPropertyChanged;
             EditType = EditType.Update;
         }
+
+        public void DiscardChanges()
+        {
+            IsEdit = false;
+            TempName = FullName;
+        }
+
+        public void ApplyChanges()
+            => FullName = TempName;
     }
 }
