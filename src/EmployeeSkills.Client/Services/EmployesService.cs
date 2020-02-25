@@ -64,11 +64,9 @@ namespace EmployeeSkills.Client.Services
 
         private static IEnumerable<EmployeeViewModel> CreateFromModel(List<Employee> employees)
         {
-            return employees.Select(employee => new EmployeeViewModel(employee.Id, employee.Name)
-            {
-                Skills = new ObservableCollection<SkillViewModel>(employee.Skills.Select(skill =>
-                    new SkillViewModel(skill.Id, skill.Name, skill.Level)))
-            });
+            return employees.Select(employee => new EmployeeViewModel(employee.Id, employee.Name,
+                new ObservableCollection<SkillViewModel>(employee.Skills.Select(skill =>
+                    new SkillViewModel(skill.Id, skill.Name, skill.Level)))));
         }
 
         private static Employee CreateFromVm(EmployeeViewModel employeeViewModel)

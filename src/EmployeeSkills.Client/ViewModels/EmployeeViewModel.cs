@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -18,15 +19,21 @@ namespace EmployeeSkills.Client.ViewModels
         private bool _isEdit;
         private string _editButtonImagePath;
 
-        public EmployeeViewModel(long id = default, string fullName = "")
+        public EmployeeViewModel(long id = default, string fullName = "", ObservableCollection<SkillViewModel> skills = null)
         {
             AddSkillCommand = ReactiveCommand.Create(ExecuteAddSkill);
             DeleteSkillCommand = ReactiveCommand.Create<SkillViewModel>(ExecuteDeleteSkill);
-            Skills = new ObservableCollection<SkillViewModel>();
+            Skills = skills ?? new ObservableCollection<SkillViewModel>();
             Id = id;
             _fullName = fullName;
             EditButtonImagePath = EDIT_BUTTON_IMAGE_PATH;
+
+            foreach (var skillViewModel in Skills)
+                skillViewModel.PropertyChanged += SkillViewModelOnPropertyChanged;
         }
+
+        private void SkillViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+            => EditType = EditType.Update;
 
         public ReactiveCommand<Unit, Unit> AddSkillCommand { get; }
         public ReactiveCommand<SkillViewModel, Unit> DeleteSkillCommand { get; }
@@ -81,6 +88,7 @@ namespace EmployeeSkills.Client.ViewModels
         private void ExecuteDeleteSkill(SkillViewModel skill)
         {
             Skills.Remove(skill);
+            skill.PropertyChanged -= SkillViewModelOnPropertyChanged;
             EditType = EditType.Update;
         }
     }
