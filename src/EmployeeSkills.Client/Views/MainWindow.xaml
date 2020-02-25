@@ -10,7 +10,11 @@
         FontSize="16" 
         MinHeight="500" MinWidth="900" 
         Icon="/Assets/avalonia-logo.ico" 
-        Title="Employee Skills">
+        Title="Employee Skills"
+        xmlns:converters="clr-namespace:EmployeeSkills.Client.Converters;assembly=EmployeeSkills.Client">
+  <Window.Resources>
+    <converters:BitmapValueConverter x:Key="bitmapConverter"/>
+  </Window.Resources>
   <Design.DataContext>
     <vm:MainWindowViewModel />
   </Design.DataContext>
@@ -21,16 +25,38 @@
       <ColumnDefinition Width="70*" MinWidth="500" />
     </Grid.ColumnDefinitions>
     <GridSplitter Grid.Column="1" />
-    <StackPanel Grid.Column="0" VerticalAlignment="Stretch">
+    <StackPanel x:Name="employees" Grid.Column="0" VerticalAlignment="Stretch">
       <TextBox Watermark="Search..." Text="{Binding SearchString}" />
       <ListBox Items="{Binding Employees}" SelectedItem="{Binding SelectedEmployee}" AutoScrollToSelectedItem="True">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <TextBlock Text="{Binding FullName}" />
+            <Grid ColumnDefinitions="80*, 10*, 10*">
+              <TextBox Margin="10 0 0 0" IsEnabled="{Binding IsEdit}" Grid.Column="0" Text="{Binding FullName}" />
+              <Button Margin="5 0 0 0" 
+                      MaxWidth="30" MaxHeight="30" 
+                      MinWidth="30" MinHeight="30" 
+                      Grid.Column="1"
+                      Command="{Binding ElementName=employees, Path=DataContext.EditEmployeeCommand}"
+                      CommandParameter="{Binding}">
+                <StackPanel>
+                  <Image Source="{Binding EditButtonImagePath, Converter={StaticResource bitmapConverter}}}" />
+                </StackPanel>
+              </Button>
+              <Button Margin="5 0 0 0" 
+                      MaxWidth="30" MaxHeight="30" 
+                      MinWidth="30" MinHeight="30" 
+                      Grid.Column="2"
+                      Command="{Binding ElementName=employees, Path=DataContext.DeleteEmployeeCommand}"
+                      CommandParameter="{Binding}">
+                <StackPanel>
+                  <Image Source="{Binding DeleteButtonImagePath, Converter={StaticResource bitmapConverter}}}" />
+                </StackPanel>
+              </Button>
+            </Grid>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-      <Button Margin="5" Content="Synchronize" VerticalAlignment="Bottom"/>
+      <Button Margin="5" Command="{Binding AddEmployeeCommand}" Content="Add..." VerticalAlignment="Bottom"/>
     </StackPanel>
     <Grid Grid.Column="2">
       <views:EmployeeControl DataContext="{Binding SelectedEmployee}" />

@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-
-using EmployeeSkills.Client.Models;
+using System.Reactive;
 
 using ReactiveUI;
 
@@ -13,7 +12,6 @@ namespace EmployeeSkills.Client.ViewModels
         private readonly List<EmployeeViewModel> _employeesSource;
         private string _searchString;
         private EmployeeViewModel _selectedEmployee;
-        private ObservableCollection<EmployeeViewModel> _employees;
 
         public MainWindowViewModel()
         {
@@ -47,16 +45,19 @@ namespace EmployeeSkills.Client.ViewModels
                     }
                 }
             };
+
+            AddEmployeeCommand = ReactiveCommand.Create(ExecuteAddEmployee);
+            DeleteEmployeeCommand = ReactiveCommand.Create<EmployeeViewModel>(ExecuteDeleteEmployee);
+            EditEmployeeCommand = ReactiveCommand.Create<EmployeeViewModel>(ExecuteEditEmployee);
             Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
             SelectedEmployee = Employees.First();
         }
 
-        public ObservableCollection<EmployeeViewModel> Employees
-        {
-            get => _employees;
-            set => this.RaiseAndSetIfChanged(ref _employees, value);
-        }
+        public ReactiveCommand<Unit, Unit> AddEmployeeCommand { get; }
+        public ReactiveCommand<EmployeeViewModel, Unit> DeleteEmployeeCommand { get; }
+        public ReactiveCommand<EmployeeViewModel, Unit> EditEmployeeCommand { get; }
 
+        public ObservableCollection<EmployeeViewModel> Employees { get; set; }
         public EmployeeViewModel SelectedEmployee
         {
             get => _selectedEmployee;
@@ -79,6 +80,30 @@ namespace EmployeeSkills.Client.ViewModels
                     t.FullName.ToUpper().Contains(_searchString.ToUpper())).ToList();
 
                 Employees = new ObservableCollection<EmployeeViewModel>(filteredEmployees);
+            }
+        }
+
+        private void ExecuteAddEmployee()
+        {
+            var newEmployee = new EmployeeViewModel()
+            {
+                EditType = EditType.Create,
+            };
+
+            Employees.Add(newEmployee);
+        }
+
+        private void ExecuteDeleteEmployee(EmployeeViewModel employee)
+        {
+            Employees.Remove(employee);
+        }
+
+        private void ExecuteEditEmployee(EmployeeViewModel employeeForEdit)
+        {
+            employeeForEdit.IsEdit = !employeeForEdit.IsEdit;
+            foreach (var employee in Employees.Where(employee => employee != employeeForEdit))
+            {
+                employee.IsEdit = false;
             }
         }
     }

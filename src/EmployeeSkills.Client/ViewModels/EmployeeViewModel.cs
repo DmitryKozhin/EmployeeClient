@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 
@@ -8,26 +8,54 @@ using ReactiveUI;
 
 namespace EmployeeSkills.Client.ViewModels
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class EmployeeViewModel : ViewModelBase
     {
+        private static readonly string EDIT_BUTTON_IMAGE_PATH = $@"{BASE_PATH}\Assets\edit.png";
+        private static readonly string OK_BUTTON_IMAGE_PATH = $@"{BASE_PATH}\Assets\done.png";
+
+        private string _fullName;
+        private bool _isEdit;
+        private string _editButtonImagePath;
+
         public EmployeeViewModel()
         {
-            AddSkill = ReactiveCommand.Create(ExecuteAddSkill);
-            DeleteSkill = ReactiveCommand.Create<SkillViewModel>(ExecuteDeleteSkill);
+            AddSkillCommand = ReactiveCommand.Create(ExecuteAddSkill);
+            DeleteSkillCommand = ReactiveCommand.Create<SkillViewModel>(ExecuteDeleteSkill);
             Skills = new ObservableCollection<SkillViewModel>();
+            EditButtonImagePath = EDIT_BUTTON_IMAGE_PATH;
         }
 
-        public int Id { get; set; }
-        public string FullName { get; set; }
+        public ReactiveCommand<Unit, Unit> AddSkillCommand { get; }
+        public ReactiveCommand<SkillViewModel, Unit> DeleteSkillCommand { get; }
+
+        public string EditButtonImagePath
+        {
+            get => _editButtonImagePath;
+            set => this.RaiseAndSetIfChanged(ref _editButtonImagePath, value);
+        }
+
+        public EditType EditType { get; set; }
+
+        public string FullName
+        {
+            get => _fullName;
+            set => this.RaiseAndSetIfChanged(ref _fullName, value);
+        }
+
+        public long Id { get; }
+
+        public bool IsEdit
+        {
+            get => _isEdit;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _isEdit, value);
+                EditButtonImagePath = value ? OK_BUTTON_IMAGE_PATH : EDIT_BUTTON_IMAGE_PATH;
+            }
+        }
+
         public ObservableCollection<SkillViewModel> Skills { get; set; }
-
-        public ReactiveCommand<Unit, Unit> AddSkill { get; }
-        public ReactiveCommand<SkillViewModel, Unit> DeleteSkill { get; }
-
-        public EditType EditType { get; private set; }
-
-        private void NewSkillOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-            => EditType = EditType.Update;
 
         private void ExecuteAddSkill()
         {
@@ -35,11 +63,11 @@ namespace EmployeeSkills.Client.ViewModels
             if (lastSkill != null && lastSkill.EditType != EditType.Update)
                 return;
 
-            var newSkill = new SkillViewModel()
+            var newSkill = new SkillViewModel
             {
                 Level = 0,
                 Name = string.Empty,
-                EditType = EditType.Create,
+                EditType = EditType.Create
             };
 
             newSkill.PropertyChanged += NewSkillOnPropertyChanged;
@@ -51,6 +79,11 @@ namespace EmployeeSkills.Client.ViewModels
         {
             skill.PropertyChanged -= NewSkillOnPropertyChanged;
             Skills.Remove(skill);
+            EditType = EditType.Update;
+        }
+
+        private void NewSkillOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
             EditType = EditType.Update;
         }
     }

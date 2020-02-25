@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EmployeeSkills.Client.Models
+﻿namespace EmployeeSkills.Client.Models
 {
     public class Skill
     {
