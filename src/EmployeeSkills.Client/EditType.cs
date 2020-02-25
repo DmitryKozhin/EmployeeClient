@@ -5,6 +5,5 @@
         None,
         Create,
         Update,
-        Delete
     }
 }

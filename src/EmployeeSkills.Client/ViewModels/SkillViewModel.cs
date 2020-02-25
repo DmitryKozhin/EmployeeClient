@@ -7,7 +7,15 @@ namespace EmployeeSkills.Client.ViewModels
         private byte _level;
         private string _name;
 
+        public SkillViewModel(int id = default, string name = "", byte level = default)
+        {
+            Id = id;
+            _name = name;
+            _level = level;
+        }
+
         public int Id { get; set; }
+
         public string Name
         {
             get => _name;
@@ -27,7 +35,5 @@ namespace EmployeeSkills.Client.ViewModels
                 EditType = EditType.Update;
             }
         }
-
-        public EditType EditType { get; set; }
     }
 }

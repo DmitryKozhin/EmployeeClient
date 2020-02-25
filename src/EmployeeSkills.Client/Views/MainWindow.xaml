@@ -57,6 +57,7 @@
         </ListBox.ItemTemplate>
       </ListBox>
       <Button Margin="5" Command="{Binding AddEmployeeCommand}" Content="Add..." VerticalAlignment="Bottom"/>
+      <Button Margin="5" Command="{Binding SaveCommand}" Content="Save..." VerticalAlignment="Bottom"/>
     </StackPanel>
     <Grid Grid.Column="2">
       <views:EmployeeControl DataContext="{Binding SelectedEmployee}" />

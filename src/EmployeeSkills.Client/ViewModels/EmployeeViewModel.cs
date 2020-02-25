@@ -18,11 +18,13 @@ namespace EmployeeSkills.Client.ViewModels
         private bool _isEdit;
         private string _editButtonImagePath;
 
-        public EmployeeViewModel()
+        public EmployeeViewModel(long id = default, string fullName = "")
         {
             AddSkillCommand = ReactiveCommand.Create(ExecuteAddSkill);
             DeleteSkillCommand = ReactiveCommand.Create<SkillViewModel>(ExecuteDeleteSkill);
             Skills = new ObservableCollection<SkillViewModel>();
+            Id = id;
+            _fullName = fullName;
             EditButtonImagePath = EDIT_BUTTON_IMAGE_PATH;
         }
 
@@ -35,15 +37,17 @@ namespace EmployeeSkills.Client.ViewModels
             set => this.RaiseAndSetIfChanged(ref _editButtonImagePath, value);
         }
 
-        public EditType EditType { get; set; }
-
         public string FullName
         {
             get => _fullName;
-            set => this.RaiseAndSetIfChanged(ref _fullName, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _fullName, value);
+                EditType = EditType.Update;
+            }
         }
 
-        public long Id { get; }
+        public long Id { get; set; }
 
         public bool IsEdit
         {
@@ -70,20 +74,13 @@ namespace EmployeeSkills.Client.ViewModels
                 EditType = EditType.Create
             };
 
-            newSkill.PropertyChanged += NewSkillOnPropertyChanged;
             Skills.Add(newSkill);
             EditType = EditType.Update;
         }
 
         private void ExecuteDeleteSkill(SkillViewModel skill)
         {
-            skill.PropertyChanged -= NewSkillOnPropertyChanged;
             Skills.Remove(skill);
-            EditType = EditType.Update;
-        }
-
-        private void NewSkillOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
             EditType = EditType.Update;
         }
     }

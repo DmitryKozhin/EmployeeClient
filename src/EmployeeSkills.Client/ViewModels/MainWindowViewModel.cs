@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+
+using Avalonia.Threading;
+
+using EmployeeSkills.Client.Services;
 
 using ReactiveUI;
 
@@ -9,55 +14,42 @@ namespace EmployeeSkills.Client.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly List<EmployeeViewModel> _employeesSource;
+        private List<EmployeeViewModel> _employeesSource;
         private string _searchString;
         private EmployeeViewModel _selectedEmployee;
+        private readonly List<long> _deletedEmployees;
+        private ObservableCollection<EmployeeViewModel> _employees;
 
         public MainWindowViewModel()
         {
-            _employeesSource = new List<EmployeeViewModel>()
-            {
-                new EmployeeViewModel()
-                {
-                    FullName = "First Employee", 
-                    Skills = new ObservableCollection<SkillViewModel>()
-                    {
-                        new SkillViewModel(){ Level=5, Name = "Skill 1" },
-                        new SkillViewModel(){ Level=3, Name = "Skill 2" }
-                    }
-                },
-                new EmployeeViewModel()
-                {
-                    FullName = "Second Employee",
-                    Skills = new ObservableCollection<SkillViewModel>()
-                    {
-                        new SkillViewModel(){ Level=2, Name = "Skill 1" },
-                        new SkillViewModel(){ Level=5, Name = "Skill 2" }
-                    }
-                },
-                new EmployeeViewModel()
-                {
-                    FullName = "Third Employee",
-                    Skills = new ObservableCollection<SkillViewModel>()
-                    {
-                        new SkillViewModel(){ Level=1, Name = "Skill 1" },
-                        new SkillViewModel(){ Level=4, Name = "Skill 2" }
-                    }
-                }
-            };
-
             AddEmployeeCommand = ReactiveCommand.Create(ExecuteAddEmployee);
+            SaveCommand = ReactiveCommand.Create(ExecuteSave);
             DeleteEmployeeCommand = ReactiveCommand.Create<EmployeeViewModel>(ExecuteDeleteEmployee);
             EditEmployeeCommand = ReactiveCommand.Create<EmployeeViewModel>(ExecuteEditEmployee);
-            Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
-            SelectedEmployee = Employees.First();
+
+            Employees = new ObservableCollection<EmployeeViewModel>();
+            _deletedEmployees = new List<long>();
+
+            Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var employees = await EmployeesService.PullEmployees();
+                _employeesSource = employees.ToList();
+                Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
+                SelectedEmployee = _employeesSource.FirstOrDefault();
+            });
         }
 
         public ReactiveCommand<Unit, Unit> AddEmployeeCommand { get; }
         public ReactiveCommand<EmployeeViewModel, Unit> DeleteEmployeeCommand { get; }
         public ReactiveCommand<EmployeeViewModel, Unit> EditEmployeeCommand { get; }
+        public ReactiveCommand<Unit, Unit> SaveCommand { get; }
 
-        public ObservableCollection<EmployeeViewModel> Employees { get; set; }
+        public ObservableCollection<EmployeeViewModel> Employees
+        {
+            get => _employees;
+            set => this.RaiseAndSetIfChanged(ref _employees, value);
+        }
+
         public EmployeeViewModel SelectedEmployee
         {
             get => _selectedEmployee;
@@ -95,6 +87,9 @@ namespace EmployeeSkills.Client.ViewModels
 
         private void ExecuteDeleteEmployee(EmployeeViewModel employee)
         {
+            if (employee.Id != default)
+                _deletedEmployees.Add(employee.Id);
+
             Employees.Remove(employee);
         }
 
@@ -102,8 +97,20 @@ namespace EmployeeSkills.Client.ViewModels
         {
             employeeForEdit.IsEdit = !employeeForEdit.IsEdit;
             foreach (var employee in Employees.Where(employee => employee != employeeForEdit))
-            {
                 employee.IsEdit = false;
+        }
+
+        private async void ExecuteSave()
+        {
+            try
+            {
+                await EmployeesService.DeleteEmployees(_deletedEmployees);
+                await EmployeesService.PushChanges(Employees);
+            }
+            catch (Exception e)
+            {
+                var messageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error", e.Message);
+                await messageBox.Show();
             }
         }
     }

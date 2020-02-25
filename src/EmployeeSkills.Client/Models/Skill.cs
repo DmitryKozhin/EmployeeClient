@@ -1,4 +1,6 @@
-﻿namespace EmployeeSkills.Client.Models
+﻿using Newtonsoft.Json;
+
+namespace EmployeeSkills.Client.Models
 {
     public class Skill
     {

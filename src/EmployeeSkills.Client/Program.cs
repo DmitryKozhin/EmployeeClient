@@ -1,6 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
+using Avalonia.Threading;
+
+using ReactiveUI;
 
 namespace EmployeeSkills.Client
 {
@@ -14,9 +17,12 @@ namespace EmployeeSkills.Client
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+        {
+            RxApp.MainThreadScheduler = AvaloniaScheduler.Instance; // Interesting line of code that fixes the issue!
+            return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToDebug()
                 .UseReactiveUI();
+        }
     }
 }
