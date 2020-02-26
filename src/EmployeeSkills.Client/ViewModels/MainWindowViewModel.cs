@@ -35,9 +35,7 @@ namespace EmployeeSkills.Client.ViewModels
             Employees = new ObservableCollection<EmployeeViewModel>();
             _deletedEmployees = new List<long>();
 
-            var configAsJson = File.ReadAllText("config.json");
-            var config = JsonConvert.DeserializeObject<ApplicationConfig>(configAsJson);
-            _employeesService = new EmployeesService(config);
+            _employeesService = new EmployeesService(new ApplicationConfig());
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 try
@@ -50,7 +48,7 @@ namespace EmployeeSkills.Client.ViewModels
                 }
                 catch (Exception e)
                 {
-                    var messageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error", config.ServerUrl);
+                    var messageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error", e.Message);
                     await messageBox.Show();
                 }
             }).ContinueWith(task => IsLoading = false);

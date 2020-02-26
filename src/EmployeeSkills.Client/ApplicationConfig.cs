@@ -1,10 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+
+using Newtonsoft.Json;
 
 namespace EmployeeSkills.Client
 {
     public class ApplicationConfig
     {
-        [JsonProperty("serverUrl")]
-        public string ServerUrl { get; set; }
+        public string ServerUrl
+        {
+            get { return Environment.GetEnvironmentVariable("PERSONS_SERVER_URL"); }
+        }
     }
 }
