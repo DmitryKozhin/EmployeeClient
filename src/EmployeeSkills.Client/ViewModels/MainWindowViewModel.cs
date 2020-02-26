@@ -35,7 +35,9 @@ namespace EmployeeSkills.Client.ViewModels
             Employees = new ObservableCollection<EmployeeViewModel>();
             _deletedEmployees = new List<long>();
 
-            _employeesService = new EmployeesService(new ApplicationConfig());
+            var confAsString = File.ReadAllText("config.json");
+            var appConfig = JsonConvert.DeserializeObject<ApplicationConfig>(confAsString);
+            _employeesService = new EmployeesService(appConfig);
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 try

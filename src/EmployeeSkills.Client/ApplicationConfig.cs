@@ -6,9 +6,7 @@ namespace EmployeeSkills.Client
 {
     public class ApplicationConfig
     {
-        public string ServerUrl
-        {
-            get { return Environment.GetEnvironmentVariable("PERSONS_SERVER_URL"); }
-        }
+        [JsonProperty("serverUrl")]
+        public string ServerUrl { get; set; }
     }
 }
