@@ -50,7 +50,7 @@ namespace EmployeeSkills.Client.ViewModels
                 }
                 catch (Exception e)
                 {
-                    var messageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error", e.Message);
+                    var messageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error", config.ServerUrl);
                     await messageBox.Show();
                 }
             }).ContinueWith(task => IsLoading = false);
