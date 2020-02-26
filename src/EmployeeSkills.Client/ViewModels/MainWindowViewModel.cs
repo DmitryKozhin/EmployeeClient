@@ -19,6 +19,7 @@ namespace EmployeeSkills.Client.ViewModels
         private EmployeeViewModel _selectedEmployee;
         private readonly List<long> _deletedEmployees;
         private ObservableCollection<EmployeeViewModel> _employees;
+        private bool _isLoading;
 
         public MainWindowViewModel()
         {
@@ -32,17 +33,24 @@ namespace EmployeeSkills.Client.ViewModels
 
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
+                IsLoading = true;
                 var employees = await EmployeesService.PullEmployees();
                 _employeesSource = employees.ToList();
                 Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
                 SelectedEmployee = _employeesSource.FirstOrDefault();
-            });
+            }).ContinueWith(task => IsLoading = false);
         }
 
         public ReactiveCommand<Unit, Unit> AddEmployeeCommand { get; }
         public ReactiveCommand<EmployeeViewModel, Unit> DeleteEmployeeCommand { get; }
         public ReactiveCommand<EmployeeViewModel, Unit> EditEmployeeCommand { get; }
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => this.RaiseAndSetIfChanged(ref _isLoading, value);
+        }
 
         public ObservableCollection<EmployeeViewModel> Employees
         {

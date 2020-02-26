@@ -78,7 +78,7 @@ namespace EmployeeSkills.Client.ViewModels
         private void ExecuteAddSkill()
         {
             var lastSkill = Skills.LastOrDefault();
-            if (lastSkill != null && lastSkill.EditType != EditType.Update)
+            if (lastSkill != null && string.IsNullOrEmpty(lastSkill.Name))
                 return;
 
             var newSkill = new SkillViewModel

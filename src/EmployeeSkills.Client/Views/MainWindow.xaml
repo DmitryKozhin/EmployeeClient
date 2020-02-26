@@ -24,6 +24,13 @@
       <ColumnDefinition Width="Auto" />
       <ColumnDefinition Width="70*" MinWidth="500" />
     </Grid.ColumnDefinitions>
+
+    <Grid ZIndex="1" Grid.ColumnSpan="3" 
+          Background="Black" Opacity="80"
+          IsVisible="{Binding IsLoading}">
+      <ProgressBar Height="25" IsIndeterminate="True" Background="White"/>
+    </Grid>
+
     <GridSplitter Grid.Column="1" />
     <StackPanel x:Name="employees" Grid.Column="0" VerticalAlignment="Stretch">
       <TextBox Watermark="Search..." Text="{Binding SearchString}" />
