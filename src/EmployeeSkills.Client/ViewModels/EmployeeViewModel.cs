@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 
@@ -12,8 +13,8 @@ namespace EmployeeSkills.Client.ViewModels
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class EmployeeViewModel : ViewModelBase
     {
-        private static readonly string EDIT_BUTTON_IMAGE_PATH = $@"{BASE_PATH}\Assets\edit.png";
-        private static readonly string OK_BUTTON_IMAGE_PATH = $@"{BASE_PATH}\Assets\done.png";
+        private static readonly string EDIT_BUTTON_IMAGE_PATH = Path.Combine(BASE_PATH, "Assets", "edit.png");
+        private static readonly string OK_BUTTON_IMAGE_PATH = Path.Combine(BASE_PATH, "Assets", "done.png");
 
         private string _fullName;
         private bool _isEdit;
@@ -32,9 +33,6 @@ namespace EmployeeSkills.Client.ViewModels
             foreach (var skillViewModel in Skills)
                 skillViewModel.PropertyChanged += SkillViewModelOnPropertyChanged;
         }
-
-        private void SkillViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-            => EditType = EditType.Update;
 
         public ReactiveCommand<Unit, Unit> AddSkillCommand { get; }
         public ReactiveCommand<SkillViewModel, Unit> DeleteSkillCommand { get; }
@@ -107,5 +105,8 @@ namespace EmployeeSkills.Client.ViewModels
 
         public void ApplyChanges()
             => FullName = TempName;
+
+        private void SkillViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+            => EditType = EditType.Update;
     }
 }

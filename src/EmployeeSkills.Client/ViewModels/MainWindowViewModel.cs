@@ -33,11 +33,19 @@ namespace EmployeeSkills.Client.ViewModels
 
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                IsLoading = true;
-                var employees = await EmployeesService.PullEmployees();
-                _employeesSource = employees.ToList();
-                Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
-                SelectedEmployee = _employeesSource.FirstOrDefault();
+                try
+                {
+                    IsLoading = true;
+                    var employees = await EmployeesService.PullEmployees();
+                    _employeesSource = employees.ToList();
+                    Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
+                    SelectedEmployee = _employeesSource.FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    var messageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error", e.Message);
+                    await messageBox.Show();
+                }
             }).ContinueWith(task => IsLoading = false);
         }
 
