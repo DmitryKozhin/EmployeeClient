@@ -11,12 +11,16 @@ using RestSharp;
 
 namespace EmployeeSkills.Client.Services
 {
-    public static class EmployeesService
+    public class EmployeesService
     {
-        private static readonly IRestClient _restClient
-            = new RestClient("https://localhost:44394/api/persons");
+        private readonly IRestClient _restClient;
 
-        public static async Task DeleteEmployees(IEnumerable<long> deleteIds)
+        public EmployeesService(ApplicationConfig config)
+        {
+            _restClient = new RestClient(config.ServerUrl);
+        }
+
+        public async Task DeleteEmployees(IEnumerable<long> deleteIds)
         {
             foreach (var deleteId in deleteIds)
             {
@@ -27,7 +31,7 @@ namespace EmployeeSkills.Client.Services
             }
         }
 
-        public static async Task<IEnumerable<EmployeeViewModel>> PullEmployees()
+        public async Task<IEnumerable<EmployeeViewModel>> PullEmployees()
         {
             var request = new RestRequest(Method.GET);
             var employees = await _restClient.ExecuteAsync<List<Employee>>(request);
@@ -37,7 +41,7 @@ namespace EmployeeSkills.Client.Services
             return CreateFromModel(employees.Data);
         }
 
-        public static async Task PushChanges(IEnumerable<EmployeeViewModel> employeeViewModels)
+        public async Task PushChanges(IEnumerable<EmployeeViewModel> employeeViewModels)
         {
             var employees = employeeViewModels.Where(t => t.EditType != default).Select(CreateFromVm).ToList();
             var forCreate = employees.Where(t => t.Id == default);

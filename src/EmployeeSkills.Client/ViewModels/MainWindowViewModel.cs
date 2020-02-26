@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 
@@ -8,12 +9,15 @@ using Avalonia.Threading;
 
 using EmployeeSkills.Client.Services;
 
+using Newtonsoft.Json;
+
 using ReactiveUI;
 
 namespace EmployeeSkills.Client.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        private readonly EmployeesService _employeesService;
         private List<EmployeeViewModel> _employeesSource;
         private string _searchString;
         private EmployeeViewModel _selectedEmployee;
@@ -31,12 +35,15 @@ namespace EmployeeSkills.Client.ViewModels
             Employees = new ObservableCollection<EmployeeViewModel>();
             _deletedEmployees = new List<long>();
 
+            var configAsJson = File.ReadAllText("config.json");
+            var config = JsonConvert.DeserializeObject<ApplicationConfig>(configAsJson);
+            _employeesService = new EmployeesService(config);
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 try
                 {
                     IsLoading = true;
-                    var employees = await EmployeesService.PullEmployees();
+                    var employees = await _employeesService.PullEmployees();
                     _employeesSource = employees.ToList();
                     Employees = new ObservableCollection<EmployeeViewModel>(_employeesSource);
                     SelectedEmployee = _employeesSource.FirstOrDefault();
@@ -123,8 +130,8 @@ namespace EmployeeSkills.Client.ViewModels
         {
             try
             {
-                await EmployeesService.DeleteEmployees(_deletedEmployees);
-                await EmployeesService.PushChanges(Employees);
+                await _employeesService.DeleteEmployees(_deletedEmployees);
+                await _employeesService.PushChanges(Employees);
             }
             catch (Exception e)
             {
